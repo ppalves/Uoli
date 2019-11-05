@@ -19,17 +19,36 @@ _start:
     la t1, reg_buffer
     csrw mscratch, t1
 
-    #FALTA CONFIGURAR AS PARTES DO ROBO E ALGUNS PERIFERICOS
+    #Seta o torque dos motores para 0
+    li t0, 0xFFFF0018
+    sh zero, 0(t0)
+    li t0, 0xFFFF001A
+    sh zero, 0(t0)
+
+    #Configura os servo motores para a posicao inicial
+    #Top
+    li t0, 0xFFFF001C
+    li t1, 78
+    sb t1, 0(t0)
+    #Mid
+    li t0, 0xFFFF001D
+    li t1, 80
+    sb t1, 0(t0)
+    #Base
+    li t0, 0xFFFF001E
+    li t1, 31
+    sb t1, 0(t0)
+
 
     #Muda para o Modo de Usuario
     csrr t1, mstatus
     li t2, ~0x1800
     and t1, t1, t2
     csrw mstatus, t1
-    
+ 
+    #Desvia o fluxo do programa para a main do arquivo loco.c
     la t0, main		#Grava o endereco do rotulo main
-    csrw mepc, t0	#No registrador mepc
-
+    csrw mepc, t0	#no registrador mepc
     mret		#PC <= MEPC; MIE <= MPIE; Muda modo para MPP
 
 
@@ -105,6 +124,7 @@ int_handler:
     lw gp, 112(a0)
     lw tp, 116(a0)
     csrrw a0, mscratch, a0
+    mret
 
 
 reg_buffer: .skip 120

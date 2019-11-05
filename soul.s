@@ -90,9 +90,16 @@ int_handler:
     sw sp, 108(a0)
     sw gp, 112(a0)
     sw tp, 116(a0)
+    csrrw a0, mscratch, a0	#Recupera o valor de a0 em a0
 
-    #TODO O CODIGO DO TRATADOR
+    #Tratador de interrupcoes
 
+
+
+    #PUPO: TODAS READ
+    #LEO: 2 DE SET E O WRITE
+
+    csrrw a0, mscratch, a0	#Recupera o valor de mscratch em a0
     lw a1, 0(a0)
     lw a2, 4(a0)
     lw a3, 8(a0)

@@ -58,6 +58,9 @@ _start:
     csrw mepc, t0	#no registrador mepc
     mret		#PC <= MEPC; MIE <= MPIE; Muda modo para MPP
 
+    loop_infinito:
+    j loop_infinito
+
 
 #Tratador de Interrupcoes
 int_handler:

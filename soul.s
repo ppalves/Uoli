@@ -96,6 +96,7 @@ int_handler:
     sw sp, 108(a0)
     sw gp, 112(a0)
     sw tp, 116(a0)
+    csrrw a0, mscratch, a0
 
     #Tratador de interrupcoes e syscalls
     csrr t1, mcause
@@ -150,6 +151,7 @@ int_handler:
 	#Codigo para tratar interrupcao (do periferico GPT)
     end_of_treatment:
 
+    csrrw a0, mscratch, a0
     lw a1, 0(a0)
     lw a2, 4(a0)
     lw a3, 8(a0)
@@ -185,7 +187,15 @@ int_handler:
 
 #Implementacao das SysCalls:
 read_ultrasonic_sensor:
-    #Codigo da funcao
+    li t1, 0xFFFF0020
+    li t2, 0
+    sw t2, 0(t1) 
+    while_read_ultrasonic:
+        lw t2, 0(t1) 
+        li t3, 1 
+        bne t2, t3, while_read_ultrasonic # if t2 != t3 then while_read_ultrasonic
+    li t1, 0xFFFF0024 # t1 = 0xFFFF0024
+    lw a0, 0(t1) 
     ret
 
 set_servo_angles:
@@ -197,11 +207,42 @@ set_engine_torque:
     ret
 
 read_gps:
-    #Codigo da funcao
+    li t1, 0xFFFF0004
+    li t2, 0
+    sw t2, 0(t1) 
+    while_read_gps:
+        lw t2, 0(t1) 
+        li t3, 1 
+        bne t2, t3, while_read_gps # if t2 != t3 then while_read_gps
+    li t1, 0xFFFF0008 # t1 = 0xFFFF0008
+    lw t2, 0(t1) # 
+    sw t2, 0(a0) # 
+    li t1, 0xFFFF000C # t1 = 0xFFFF0008
+    lw t2, 0(t1) # 
+    sw t2, 4(a0) # 
+    li t1, 0xFFFF0010 # t1 = 0xFFFF0008
+    lw t2, 0(t1) # 
+    sw t2, 8(a0) # 
     ret
 
 read_gyroscope:
-    #Codigo da funcao
+    li t1, 0xFFFF0004
+    li t2, 0
+    sw t2, 0(t1) 
+    while_read_gps:
+        lw t2, 0(t1) 
+        li t3, 1 
+        bne t2, t3, while_read_gps # if t2 != t3 then while_read_gps
+    li t1, 0xFFFF0014 # t1 = 0xFFFF0014
+    lw t1, 0(t1) # 
+    srli t2, t1, 20
+    slli t3, t1, 12
+    srli t3, t3, 22
+    slli t4, t1, 22
+    srli t4, t4, 22
+    sw t2, 0(a0) # 
+    sw t3, 4(a0) # 
+    sw t4, 8(a0) #     
     ret
 
 get_time:

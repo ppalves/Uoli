@@ -2,6 +2,9 @@
 
 #Configuracao do hardware e inicializacao do Uoli
 _start:
+
+    #Falta configurar o GPT!!
+
     #Configura o endereco para o tratador
     la t0, int_handler	#Grava o endereco do rotulo do tratador
     csrw mtvec, t0	#em t0 e coloca esse valor em mtvec
@@ -45,15 +48,13 @@ _start:
     li t2, ~0x1800
     and t1, t1, t2
     csrw mstatus, t1
- 
+
+    #FALTA CONFIGURAR A PILHA DO USUARIO E DO SISTEMA
+
     #Desvia o fluxo do programa para a main do arquivo loco.c
     la t0, main		#Grava o endereco do rotulo main
     csrw mepc, t0	#no registrador mepc
     mret		#PC <= MEPC; MIE <= MPIE; Muda modo para MPP
-
-
-
-
 
 
 #Tratador de Interrupcoes
@@ -90,16 +91,59 @@ int_handler:
     sw sp, 108(a0)
     sw gp, 112(a0)
     sw tp, 116(a0)
-    csrrw a0, mscratch, a0	#Recupera o valor de a0 em a0
 
-    #Tratador de interrupcoes
+    #Tratador de interrupcoes e syscalls
+    blt mcause, zero, interruption	#Se o mcause for menor que zero, desvia para interruption
+    syscalls:				#Se o mcause for maior que zero, executa o tratamento de syscalls
+	if_read_ultrasonic_sensor:	
+	    li t1, 16
+	    bne t1, a7, else_set_servo_angles
+	    jal read_ultrasonic_sensor
+	    j end_syscall
+	else_set_servo_angles:
+	    li t1, 17
+	    bne t1, a7, else_set_engine_torque
+	    jal set_servo_angles
+	    j end_syscall
+	else_set_engine_torque:
+	    li t1, 18
+	    bne t1, a7, else_read_gps
+	    jal set_engine_torque
+	    j end_syscall
+	else_read_gps:
+	    li t1, 19
+	    bne t1, a7, else_read_gyroscope
+	    jal read_gps
+	    j end_syscall
+	else_read_gyroscope:
+	    li t1, 20
+	    bne t1, a7, else_get_time
+	    jal read_gyroscope
+	    j end_syscall
+	else_get_time:
+	    li t1, 21
+	    bne t1, a7, else_set_time
+	    jal get_time
+	    j end_syscall
+	else_set_time:
+	    li t1, 22
+	    bne t1, a7, else_write
+	    jal set_time
+	    j end_syscall
+	else_write:
+	    li t1, 64
+	    bne t1, a7, end_syscall
+	    jal write
+	end_syscall:
+	#Ajuste do MEPC para retornar de uma syscall
+	csrr a1, mepc		#Carrega endereco de retorno em a1
+	addi a1, a1, 4		#Soma 4 no endereco de retorno
+	csrs mepc, a1		#Salva o novo endereco de retorno em MEPC
+	j end_of_treatment	#Desvia para o fim do tratamento
+    interruption:
+	#Codigo para tratar interrupcao (do periferico GPT)
+    end_of_treatment:
 
-
-
-    #PUPO: TODAS READ
-    #LEO: 2 DE SET E O WRITE
-
-    csrrw a0, mscratch, a0	#Recupera o valor de mscratch em a0
     lw a1, 0(a0)
     lw a2, 4(a0)
     lw a3, 8(a0)
@@ -133,5 +177,38 @@ int_handler:
     csrrw a0, mscratch, a0
     mret
 
+#Implementacao das SysCalls:
+read_ultrasonic_sensor:
+    #Codigo da funcao
+    ret
+
+set_servo_angles:
+    #Codigo da funcao
+    ret
+
+set_engine_torque:
+    #Codigo da funcao
+    ret
+
+read_gps:
+    #Codigo da funcao
+    ret
+
+read_gyroscope:
+    #Codigo da funcao
+    ret
+
+get_time:
+    #Codigo da funcao
+    ret
+
+set_time:
+    #Codigo da funcao
+    ret
+
+write:
+    #Codigo da funcao
+    ret
 
 reg_buffer: .skip 120
+

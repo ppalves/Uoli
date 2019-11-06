@@ -21,6 +21,9 @@ _start:
     #Ajusta o mscratch
     la t1, reg_buffer
     csrw mscratch, t1
+    
+    #Configura a pilha do usuario
+    li sp, 0x7FFFFFC
 
     #Seta o torque dos motores para 0
     li t0, 0xFFFF0018
@@ -49,7 +52,6 @@ _start:
     and t1, t1, t2
     csrw mstatus, t1
 
-    #FALTA CONFIGURAR A PILHA DO USUARIO E DO SISTEMA
 
     #Desvia o fluxo do programa para a main do arquivo loco.c
     la t0, main		#Grava o endereco do rotulo main

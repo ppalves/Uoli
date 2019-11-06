@@ -1,4 +1,3 @@
-kefile para geraÃ§Ã£o do software do UÃ³li
 #  
 #  Autores: Edson Borin e AntÃ´nio GuimarÃ£es
 #  

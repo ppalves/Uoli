@@ -95,7 +95,8 @@ int_handler:
     sw tp, 116(a0)
 
     #Tratador de interrupcoes e syscalls
-    blt mcause, zero, interruption	#Se o mcause for menor que zero, desvia para interruption
+    csrr t1, mcause
+    blt t1, zero, interruption	#Se o mcause for menor que zero, desvia para interruption
     syscalls:				#Se o mcause for maior que zero, executa o tratamento de syscalls
 	if_read_ultrasonic_sensor:	
 	    li t1, 16

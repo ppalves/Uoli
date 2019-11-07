@@ -199,7 +199,44 @@ read_ultrasonic_sensor:
     ret
 
 set_servo_angles:
-    #Codigo da funcao
+    if_servo_1:
+	li t1, 1
+	bne a0, t1, else_servo_2	#if a0!=1 then else_servo_2
+	li t1, 16
+	blt a1, t1, invalid_angle	#if a1<16 then invalid_angle
+	li t1, 116
+	blt t1, a1, invalid_angle	#if a1>116 then invalid_angle
+	li t1, 0xFFFF001E		#Recebe o endereco de memoria do motor base
+	sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001E
+	li a0, 0
+	j else_servo
+    else_servo_2:
+	li t1, 2
+	bne a0, t1, else_servo_3
+	li t1, 52
+	blt a1, t1, invalid_angle	#if a1<52 then invalid_angle
+	li t1, 90
+	blt t1, a1, invalid_angle	#if a1>90 then invalid_angle
+	li t1, 0xFFFF001D		#Recebe o endereco de memoria do motor base
+	sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001D
+	li a0, 0
+	j else_servo
+    else_servo_3:
+	li t1, 3
+	bne a0, t1, invalid_id
+	blt a1, zero, invalid_angle	#if a1<0 then invalid_angle
+	li t1, 156
+	blt t1, a1, invalid_angle	#if a1>156 then invalid_angle
+	li t1, 0xFFFF001C		#Recebe o endereco de memoria do motor base
+	sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001C
+	li a0, 0
+	j else_servo
+    invalid_id:		#Caso o id seja invalido
+	li a0, -2	#coloca o -2 em a0
+	j else_servo
+    invalid_angle:	#Caso o angulo seja invalido
+	li a0, -1	#coloca o -1 em a0
+    else_servo:
     ret
 
 set_engine_torque:

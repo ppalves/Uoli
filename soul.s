@@ -45,13 +45,11 @@ _start:
     li t1, 31
     sb t1, 0(t0)
 
-
     #Muda para o Modo de Usuario
     csrr t1, mstatus
     li t2, ~0x1800
     and t1, t1, t2
     csrw mstatus, t1
-
 
     #Desvia o fluxo do programa para a main do arquivo loco.c
     la t0, main		#Grava o endereco do rotulo main
@@ -240,7 +238,21 @@ set_servo_angles:
     ret
 
 set_engine_torque:
-    #Codigo da funcao
+    if_engine_0:
+	bne a0, zero, else_engine_1	#if a0!=0 then else_engine_1
+	li t0, 0xFFFF001A
+	sh a1, 0(t0)			#Seta o valor de a1 como o torque do motor 0
+	j end_set_engine
+    else_engine_1:
+	li t1, 1
+	bne a0, t1, invalid_engine_id	#if a0!=2 then invalid_engine_id
+	li t1, 0xFFFF0018
+	sh a1, 0(t1)			#Seta o valor de a1 como o torque do motor 1
+	li a0, 0
+	j end_set_engine
+    invalid_engine_id:		#if a0!=1 and a0!=2 then a0=-1 and return
+	li a0, -1
+    end_set_engine:
     ret
 
 read_gps:
@@ -266,10 +278,10 @@ read_gyroscope:
     li t1, 0xFFFF0004
     li t2, 0
     sw t2, 0(t1) 
-    while_read_gps:
+    while_read_gyroscope:
         lw t2, 0(t1) 
         li t3, 1 
-        bne t2, t3, while_read_gps # if t2 != t3 then while_read_gps
+        bne t2, t3, while_read_gyroscope # if t2 != t3 then while_read_gps
     li t1, 0xFFFF0014 # t1 = 0xFFFF0014
     lw t1, 0(t1) # 
     srli t2, t1, 20

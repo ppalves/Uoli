@@ -213,20 +213,20 @@ set_servo_angles:
 	    li a0, 0
 	    j else_servo
     else_servo_3:
-	li t1, 3
-	bne a0, t1, invalid_id
-	blt a1, zero, invalid_angle	#if a1<0 then invalid_angle
-	li t1, 156
-	blt t1, a1, invalid_angle	#if a1>156 then invalid_angle
-	li t1, 0xFFFF001C		#Recebe o endereco de memoria do motor base
-	sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001C
-	li a0, 0
-	j else_servo
+	    li t1, 3
+	    bne a0, t1, invalid_id
+	    blt a1, zero, invalid_angle	#if a1<0 then invalid_angle
+	    li t1, 156
+	    blt t1, a1, invalid_angle	#if a1>156 then invalid_angle
+	    li t1, 0xFFFF001C		#Recebe o endereco de memoria do motor base
+	    sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001C
+	    li a0, 0
+	    j else_servo
     invalid_id:		#Caso o id seja invalido
-	li a0, -2	#coloca o -2 em a0
-	j else_servo
+	    li a0, -2	#coloca o -2 em a0
+	    j else_servo
     invalid_angle:	#Caso o angulo seja invalido
-	li a0, -1	#coloca o -1 em a0
+	    li a0, -1	#coloca o -1 em a0
     else_servo:
     j end_syscall
 

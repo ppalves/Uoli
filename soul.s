@@ -103,47 +103,40 @@ int_handler:
 	if_read_ultrasonic_sensor:	
 	    li t1, 16
 	    bne t1, a7, else_set_servo_angles
-	    jal read_ultrasonic_sensor
-	    j end_syscall
+	    j read_ultrasonic_sensor
 	else_set_servo_angles:
 	    li t1, 17
 	    bne t1, a7, else_set_engine_torque
-	    jal set_servo_angles
-	    j end_syscall
+	    j set_servo_angles
 	else_set_engine_torque:
 	    li t1, 18
 	    bne t1, a7, else_read_gps
-	    jal set_engine_torque
-	    j end_syscall
+	    j set_engine_torque
 	else_read_gps:
 	    li t1, 19
 	    bne t1, a7, else_read_gyroscope
-	    jal read_gps
-	    j end_syscall
+	    j read_gps
 	else_read_gyroscope:
 	    li t1, 20
 	    bne t1, a7, else_get_time
-	    jal read_gyroscope
-	    j end_syscall
+	    j read_gyroscope
 	else_get_time:
 	    li t1, 21
 	    bne t1, a7, else_set_time
-	    jal get_time
-	    j end_syscall
+	    j get_time
 	else_set_time:
 	    li t1, 22
 	    bne t1, a7, else_write
-	    jal set_time
-	    j end_syscall
+	    j set_time
 	else_write:
 	    li t1, 64
 	    bne t1, a7, end_syscall
-	    jal write
+	    j write
 	end_syscall:
 	#Ajuste do MEPC para retornar de uma syscall
-	csrr a1, mepc		#Carrega endereco de retorno em a1
-	addi a1, a1, 4		#Soma 4 no endereco de retorno
-	csrw mepc, a1		#Salva o novo endereco de retorno em MEPC
+	csrr t0, mepc  # carrega endereco de retorno (endereco da instrucao que invocou a syscall)
+	addi t0, t0, 4 # soma 4 no endereco de retorno (para retornar apos a ecall)
+	csrw mepc, t0  # armazena endereco de retorno de volta no mepc
 	j end_of_treatment	#Desvia para o fim do tratamento
     interruption:
 	#Codigo para tratar interrupcao (do periferico GPT)
@@ -194,31 +187,31 @@ read_ultrasonic_sensor:
         bne t2, t3, while_read_ultrasonic # if t2 != t3 then while_read_ultrasonic
     li t1, 0xFFFF0024 # t1 = 0xFFFF0024
     lw a0, 0(t1) 
-    ret
+    j end_syscall
 
 set_servo_angles:
     if_servo_1:
-	li t1, 1
-	bne a0, t1, else_servo_2	#if a0!=1 then else_servo_2
-	li t1, 16
-	blt a1, t1, invalid_angle	#if a1<16 then invalid_angle
-	li t1, 116
-	blt t1, a1, invalid_angle	#if a1>116 then invalid_angle
-	li t1, 0xFFFF001E		#Recebe o endereco de memoria do motor base
-	sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001E
-	li a0, 0
-	j else_servo
+	    li t1, 1
+	    bne a0, t1, else_servo_2	#if a0!=1 then else_servo_2
+	    li t1, 16
+	    blt a1, t1, invalid_angle	#if a1<16 then invalid_angle
+	    li t1, 116
+	    blt t1, a1, invalid_angle	#if a1>116 then invalid_angle
+	    li t1, 0xFFFF001E		#Recebe o endereco de memoria do motor base
+	    sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001E
+	    li a0, 0
+	    j else_servo
     else_servo_2:
-	li t1, 2
-	bne a0, t1, else_servo_3
-	li t1, 52
-	blt a1, t1, invalid_angle	#if a1<52 then invalid_angle
-	li t1, 90
-	blt t1, a1, invalid_angle	#if a1>90 then invalid_angle
-	li t1, 0xFFFF001D		#Recebe o endereco de memoria do motor base
-	sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001D
-	li a0, 0
-	j else_servo
+	    li t1, 2
+	    bne a0, t1, else_servo_3
+	    li t1, 52
+	    blt a1, t1, invalid_angle	#if a1<52 then invalid_angle
+	    li t1, 90
+	    blt t1, a1, invalid_angle	#if a1>90 then invalid_angle
+	    li t1, 0xFFFF001D		#Recebe o endereco de memoria do motor base
+	    sb a1, 0(t1)			#Salva o valor de a1 em 0xFFFF001D
+	    li a0, 0
+	    j else_servo
     else_servo_3:
 	li t1, 3
 	bne a0, t1, invalid_id
@@ -235,25 +228,25 @@ set_servo_angles:
     invalid_angle:	#Caso o angulo seja invalido
 	li a0, -1	#coloca o -1 em a0
     else_servo:
-    ret
+    j end_syscall
 
 set_engine_torque:
     if_engine_0:
-	bne a0, zero, else_engine_1	#if a0!=0 then else_engine_1
-	li t0, 0xFFFF001A
-	sh a1, 0(t0)			#Seta o valor de a1 como o torque do motor 0
-	j end_set_engine
+	    bne a0, zero, else_engine_1	#if a0!=0 then else_engine_1
+	    li t0, 0xFFFF001A
+	    sh a1, 0(t0)			#Seta o valor de a1 como o torque do motor 0
+	    j end_set_engine
     else_engine_1:
-	li t1, 1
-	bne a0, t1, invalid_engine_id	#if a0!=2 then invalid_engine_id
-	li t0, 0xFFFF0018
-	sh a1, 0(t0)			#Seta o valor de a1 como o torque do motor 1
-	li a0, 0
-	j end_set_engine
+	    li t1, 1
+	    bne a0, t1, invalid_engine_id	#if a0!=2 then invalid_engine_id
+	    li t0, 0xFFFF0018
+	    sh a1, 0(t0)			#Seta o valor de a1 como o torque do motor 1
+	    li a0, 0
+	    j end_set_engine
     invalid_engine_id:		#if a0!=1 and a0!=2 then a0=-1 and return
-	li a0, -1
+	    li a0, -1
     end_set_engine:
-    ret
+    j end_syscall
 
 read_gps:
     li t1, 0xFFFF0004
@@ -272,7 +265,7 @@ read_gps:
     li t1, 0xFFFF0010 # t1 = 0xFFFF0008
     lw t2, 0(t1) # 
     sw t2, 8(a0) # 
-    ret
+    j end_syscall
 
 read_gyroscope:
     li t1, 0xFFFF0004
@@ -292,19 +285,19 @@ read_gyroscope:
     sw t2, 0(a0) # 
     sw t3, 4(a0) # 
     sw t4, 8(a0) #     
-    ret
+    j end_syscall
 
 get_time:
     #Codigo da funcao
-    ret
+    j end_syscall
 
 set_time:
     #Codigo da funcao
-    ret
+    j end_syscall
 
 write:
     #Codigo da funcao
-    ret
+    j end_syscall
 
 reg_buffer: .skip 120
 

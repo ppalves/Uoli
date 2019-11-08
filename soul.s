@@ -143,7 +143,7 @@ int_handler:
 	#Ajuste do MEPC para retornar de uma syscall
 	csrr a1, mepc		#Carrega endereco de retorno em a1
 	addi a1, a1, 4		#Soma 4 no endereco de retorno
-	csrs mepc, a1		#Salva o novo endereco de retorno em MEPC
+	csrw mepc, a1		#Salva o novo endereco de retorno em MEPC
 	j end_of_treatment	#Desvia para o fim do tratamento
     interruption:
 	#Codigo para tratar interrupcao (do periferico GPT)
@@ -246,8 +246,8 @@ set_engine_torque:
     else_engine_1:
 	li t1, 1
 	bne a0, t1, invalid_engine_id	#if a0!=2 then invalid_engine_id
-	li t1, 0xFFFF0018
-	sh a1, 0(t1)			#Seta o valor de a1 como o torque do motor 1
+	li t0, 0xFFFF0018
+	sh a1, 0(t0)			#Seta o valor de a1 como o torque do motor 1
 	li a0, 0
 	j end_set_engine
     invalid_engine_id:		#if a0!=1 and a0!=2 then a0=-1 and return

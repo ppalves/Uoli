@@ -50,7 +50,7 @@ _start:
     li t2, ~0x1800
     and t1, t1, t2
     csrw mstatus, t1
-
+    
     #Desvia o fluxo do programa para a main do arquivo loco.c
     la t0, main		#Grava o endereco do rotulo main
     csrw mepc, t0	#no registrador mepc
@@ -103,35 +103,35 @@ int_handler:
 	if_read_ultrasonic_sensor:	
 	    li t1, 16
 	    bne t1, a7, else_set_servo_angles
-	    j read_ultrasonic_sensor
+	    j syscall_read_ultrasonic_sensor
 	else_set_servo_angles:
 	    li t1, 17
 	    bne t1, a7, else_set_engine_torque
-	    j set_servo_angles
+	    j syscall_set_servo_angles
 	else_set_engine_torque:
 	    li t1, 18
 	    bne t1, a7, else_read_gps
-	    j set_engine_torque
+	    j syscall_set_engine_torque
 	else_read_gps:
 	    li t1, 19
 	    bne t1, a7, else_read_gyroscope
-	    j read_gps
+	    j syscall_read_gps
 	else_read_gyroscope:
 	    li t1, 20
 	    bne t1, a7, else_get_time
-	    j read_gyroscope
+	    j syscall_read_gyroscope
 	else_get_time:
 	    li t1, 21
 	    bne t1, a7, else_set_time
-	    j get_time
+	    j syscall_get_time
 	else_set_time:
 	    li t1, 22
 	    bne t1, a7, else_write
-	    j set_time
+	    j syscall_set_time
 	else_write:
 	    li t1, 64
 	    bne t1, a7, end_syscall
-	    j write
+	    j syscall_write
 	end_syscall:
 	#Ajuste do MEPC para retornar de uma syscall
 	csrr t0, mepc  # carrega endereco de retorno (endereco da instrucao que invocou a syscall)
@@ -177,7 +177,7 @@ int_handler:
     mret
 
 #Implementacao das SysCalls:
-read_ultrasonic_sensor:
+syscall_read_ultrasonic_sensor:
     li t1, 0xFFFF0020
     li t2, 0
     sw t2, 0(t1) 
@@ -189,7 +189,7 @@ read_ultrasonic_sensor:
     lw a0, 0(t1) 
     j end_syscall
 
-set_servo_angles:
+syscall_set_servo_angles:
     if_servo_1:
 	    li t1, 1
 	    bne a0, t1, else_servo_2	#if a0!=1 then else_servo_2
@@ -230,7 +230,7 @@ set_servo_angles:
     else_servo:
     j end_syscall
 
-set_engine_torque:
+syscall_set_engine_torque:
     if_engine_0:
 	    bne a0, zero, else_engine_1	#if a0!=0 then else_engine_1
 	    li t0, 0xFFFF001A
@@ -248,7 +248,7 @@ set_engine_torque:
     end_set_engine:
     j end_syscall
 
-read_gps:
+syscall_read_gps:
     li t1, 0xFFFF0004
     li t2, 0
     sw t2, 0(t1) 
@@ -267,7 +267,7 @@ read_gps:
     sw t2, 8(a0) # 
     j end_syscall
 
-read_gyroscope:
+syscall_read_gyroscope:
     li t1, 0xFFFF0004
     li t2, 0
     sw t2, 0(t1) 
@@ -287,15 +287,15 @@ read_gyroscope:
     sw t4, 8(a0) #     
     j end_syscall
 
-get_time:
+syscall_get_time:
     #Codigo da funcao
     j end_syscall
 
-set_time:
+syscall_set_time:
     #Codigo da funcao
     j end_syscall
 
-write:
+syscall_write:
     #Codigo da funcao
     j end_syscall
 

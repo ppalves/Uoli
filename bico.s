@@ -1,4 +1,5 @@
 .globl set_torque
+.globl set_engine_torque
 
 # Seta o torque dos dois motores. O torque tem que ser um valor
 #entre -100 e 100.
@@ -35,4 +36,39 @@ set_torque:
 	li a0, -1	#Seta o valor de retorno para id invalido
     end_set_torque_1_2:
     ret
-    
+
+#Seta o torque de um motor. O torque deve ter um valor entre 100 e -100.
+#Parametros:
+#	a0: Engine ID
+#	a1: Engine torque
+#Retorno:
+#	-1 caso o torque seja invalido
+#	-2 caso o id seja invalido
+#	0 caso esteja tudo certo.
+set_engine_torque:
+    if_torque_ok:
+	li t2, 100
+	li t3, -100
+	blt a1, t3, invalid_torque	#If a1<-100 then invalid_torque
+	blt t2, a1, invalid_torque	#If a1>100 then invalid_torque
+	li a7, 18
+	ecall		#Chamada da Syscall para setar o torque
+    if_eng_id_ok:
+	li t2, -1
+	beq a0, t2, invalid_eng_id	#If a0=-1 then invalid_eng_id
+	j end_set_eng_torq
+    invalid_torque:
+	li t2, 0
+	li t3, 1
+	beq a0, t2, id_ok		#If a0=0 then id_ok
+	bne a0, t3, invalid_eng_id	#If a0!=1 then invalid_eng_id
+	id_ok:
+	    li a0, -1	#Valor de retorno para torque invalido
+	    j end_set_eng_torq
+    invalid_eng_id:
+	li a0, -2	#Valor de retorno para ID invalido
+    end_set_eng_torq:
+    ret
+
+
+

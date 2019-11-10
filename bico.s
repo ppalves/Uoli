@@ -1,5 +1,6 @@
 .globl set_torque
 .globl set_engine_torque
+.globl set_head_servo
 
 # Seta o torque dos dois motores. O torque tem que ser um valor
 #entre -100 e 100.
@@ -70,5 +71,26 @@ set_engine_torque:
     end_set_eng_torq:
     ret
 
-
+#Seta o angulo dos servo motores (mid, top, base)
+#Parametros:
+#	a0: Servo ID
+#	a1: Servo Angle
+#Retorno:
+#	-1 caso ID seja invalido
+#	-2 caso o angulo seja invalido
+#	 0 caso esteja tudo certo
+set_head_servo:
+    li a7, 17	#Codigo da SysCall
+    ecall	#Chama a SysCall
+    if_return_invalid_id:
+	li t0, -2	#t0=-2
+	bne a0, t0, else_if_invalid_angle	#If a0!=-2 then else_if_invalid_angle
+	li a0, -1	#a0=-1 para ID invalido
+	j end_set_head_servo
+    else_if_invalid_angle:
+	li t0, -1
+	bne a0, t0, end_set_head_servo		#If a0!=-1 then end_set_head_servo
+	li a0, -2	#a0=-2 para angulo invalido
+    end_set_head_servo:
+    ret
 

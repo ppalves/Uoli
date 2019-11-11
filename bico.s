@@ -4,7 +4,8 @@
 .globl get_us_distance
 .globl get_current_GPS_position
 .globl get_gyro_angles
-
+.globl get_time
+.globl set_time
 # Seta o torque dos dois motores. O torque tem que ser um valor
 #entre -100 e 100.
 # Parametros:

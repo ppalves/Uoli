@@ -1,6 +1,9 @@
 .globl set_torque
 .globl set_engine_torque
 .globl set_head_servo
+.globl get_us_distance
+.globl get_current_GPS_position
+.globl get_gyro_angles
 
 # Seta o torque dos dois motores. O torque tem que ser um valor
 #entre -100 e 100.
@@ -92,5 +95,29 @@ set_head_servo:
 	bne a0, t0, end_set_head_servo		#If a0!=-1 then end_set_head_servo
 	li a0, -2	#a0=-2 para angulo invalido
     end_set_head_servo:
+    ret
+
+
+
+
+get_us_distance:
+    li a7, 16 # a7 = 16
+    ecall
+    li t0, -1 # t0 = -1
+    bne a0, t0, valid_distance; # if a0 == t0 then valid_distance
+    li a0, 0xFFFF # a0 = 0xFFFF
+    valid_distance:
+    ret
+
+
+
+get_current_GPS_position:
+    li a7, 19 # a7 = 19
+    ecall
+    ret
+
+get_gyro_angles:
+    li a7, 20 # a7 = 20
+    ecall
     ret
 

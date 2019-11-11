@@ -99,6 +99,7 @@ int_handler:
     #Tratador de interrupcoes e syscalls
     csrr t1, mcause
     blt t1, zero, interruption	#Se o mcause for menor que zero, desvia para interruption
+    
     syscalls:				#Se o mcause for maior que zero, executa o tratamento de syscalls
 	if_read_ultrasonic_sensor:	
 	    li t1, 16
@@ -132,14 +133,17 @@ int_handler:
 	    li t1, 64
 	    bne t1, a7, end_syscall
 	    j syscall_write
-	end_syscall:
+	
+    end_syscall:
 	#Ajuste do MEPC para retornar de uma syscall
 	csrr t0, mepc  # carrega endereco de retorno (endereco da instrucao que invocou a syscall)
 	addi t0, t0, 4 # soma 4 no endereco de retorno (para retornar apos a ecall)
 	csrw mepc, t0  # armazena endereco de retorno de volta no mepc
 	j end_of_treatment	#Desvia para o fim do tratamento
+    
     interruption:
 	#Codigo para tratar interrupcao (do periferico GPT)
+    
     end_of_treatment:
 
     csrrw a0, mscratch, a0

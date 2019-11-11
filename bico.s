@@ -109,8 +109,6 @@ get_us_distance:
     valid_distance:
     ret
 
-
-
 get_current_GPS_position:
     li a7, 19 # a7 = 19
     ecall
@@ -132,4 +130,25 @@ puts:
         bnez t1, loop_puts
     ecall
     ret
-        
+       
+#Le o tempo atual do sistema
+#Parametro:
+#	Nao tem
+#Retorno:
+#	Tempo atual do sistema
+get_time:
+    li a7, 21
+    ecall	#Chama s Syscall de get_time
+    #O valor de retorno ja esta em a0
+    ret
+
+#Seta o tempo do sistema
+#Parametro:
+#	a0: Valor do novo tempo do sistema
+#Retorno:
+#	Void
+set_time:
+    #O valor do a0 para a Syscall ja veio como parametro
+    li a7, 22
+    ecall	#Chama a Syscall que seta o tempo do sistema
+    ret

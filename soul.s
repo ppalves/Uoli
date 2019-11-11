@@ -307,11 +307,13 @@ syscall_read_gyroscope:
     j end_syscall
 
 syscall_get_time:
-    #Codigo da funcao
+    la t0, time_now	#t0=endereco do tempo atual
+    lw a0, 0(t0)	#a0=tempo atual
     j end_syscall
 
 syscall_set_time:
-    #Codigo da funcao
+    la t0, time_now	#t0=endereco do tempo atual
+    sw a0, 0(t0)	#Coloca o valor de a0 como novo tempo atual
     j end_syscall
 
 syscall_write:

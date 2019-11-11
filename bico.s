@@ -121,3 +121,15 @@ get_gyro_angles:
     ecall
     ret
 
+puts:
+    li a7, 64 # a7 = 64
+    mv  a1, a0 # a1 = a0
+    li a0, 1 # a0 = 1
+    li a2, 0 # a2 = 0
+    loop_puts:
+        lb t1, a2(a1)
+        addi a2, a2, 1; # a2 = a2 + 1
+        bnez t1, loop_puts
+    ecall
+    ret
+        

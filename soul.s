@@ -3,7 +3,10 @@
 #Configuracao do hardware e inicializacao do Uoli
 _start:
 
-    #Falta configurar o GPT!!
+    #Inicializa o GPT
+    li t0, 0xFFFF0100
+    li t1, 100
+    sw t1, 0(t0)
 
     #Configura o endereco para o tratador
     la t0, int_handler	#Grava o endereco do rotulo do tratador
@@ -143,7 +146,19 @@ int_handler:
     
     interruption:
 	#Codigo para tratar interrupcao (do periferico GPT)
-    
+	li t0, 0xFFFF0104
+	lw t1, 0(t0)
+	beq zero, t1, end_of_treatment	#If interrupcao falsa then end_of_treatment
+	if_int_GPT:
+	    sw zero, 0(t0)	#Seta o valor zero para o verificador do GPT
+	    li t0, 0xFFFF0100
+	    li t1, 100
+	    sw t1, 0(t0)	#Seta o GPT para interromper daqui 100ms
+	    la t0, time_now
+	    lw t1, 0(t0)	#t1=tempo atual
+	    addi t1, t1, 100	#Soma 100ms no tempo atual
+	    sw t1, 0(t0)	#Guarda o tempo atual na memoria
+
     end_of_treatment:
 
     csrrw a0, mscratch, a0
@@ -304,8 +319,8 @@ syscall_write:
     li t2, 0xFFFF0109 # t2 = 0xFFFF0109
 
     loop_syscall_write:
-        lb t1, t0(a1) 
-        sb t1, t0(t2) 
+#        lb t1, t0(a1) 
+#        sb t1, t0(t2) 
         addi t0, t0, 1; # t0 = t0 + 1
         blt t0, a2, loop_syscall_write # if t0 < a2 then loop_syscall_write
     
@@ -324,5 +339,6 @@ syscall_write:
                 
     j end_syscall
 
+time_now: .skip 4
 reg_buffer: .skip 120
 

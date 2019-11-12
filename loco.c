@@ -1,19 +1,44 @@
 #include "api_robot2.h"
 
+void print_int(int a);
+
+
 int main() {
     unsigned int t;
-    set_head_servo(2, 156);
     t = get_time();
-    while(get_time()-t<3000){
-	//Wait
+    while(1) {
+	if (get_time()-t>=1000) {
+	    print_int(get_time());
+	    puts("\n");
+	    t = get_time();
+	}
     }
-    set_torque(50, 50);
-
-    char* s = "Teste";
-    puts(s);
     //loop_infinito
     while(1) {
 	//Nada
     }
     return 0;
 }
+
+
+void print_int(int a) {
+    if (a/10 == 0) {
+	int rest = a%10;
+	rest = rest+48;
+	char s = (char)rest;
+	char *teste = "";
+	*teste = s;
+	puts(teste);
+    }
+    else {
+	print_int(a/10);
+	int rest = a%10;
+	rest = rest+48;
+	char s = (char)rest;
+	char *teste = "";
+	*teste = s;
+	puts(teste);
+	}
+}
+
+

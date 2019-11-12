@@ -6,6 +6,7 @@
 .globl get_gyro_angles
 .globl get_time
 .globl set_time
+.globl puts
 # Seta o torque dos dois motores. O torque tem que ser um valor
 #entre -100 e 100.
 # Parametros:
@@ -123,11 +124,13 @@ get_gyro_angles:
 puts:
     li a7, 64 # a7 = 64
     mv  a1, a0 # a1 = a0
+    mv t2, a0 #t2 = a0
     li a0, 1 # a0 = 1
     li a2, 0 # a2 = 0
     loop_puts:
-#        lb t1, a2(a1)
-        addi a2, a2, 1; # a2 = a2 + 1
+        lb t1, 0(t2)
+        addi a2, a2, 1	# a2 = a2 + 1
+	addi t2, t2, 1	# t2 = t2 + 1
         bnez t1, loop_puts
     ecall
     ret

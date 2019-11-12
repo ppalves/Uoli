@@ -9,6 +9,8 @@ int main() {
     }
     set_torque(50, 50);
 
+    char* s = "Teste";
+    puts(s);
     //loop_infinito
     while(1) {
 	//Nada

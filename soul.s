@@ -317,28 +317,24 @@ syscall_set_time:
     j end_syscall
 
 syscall_write:
-    li t0, 0
-    li t2, 0xFFFF0109 # t2 = 0xFFFF0109
-
-    loop_syscall_write:
-#        lb t1, t0(a1) 
-#        sb t1, t0(t2) 
-        addi t0, t0, 1; # t0 = t0 + 1
-        blt t0, a2, loop_syscall_write # if t0 < a2 then loop_syscall_write
-    
+    li t0, 0xFFFF0109 # t2 = 0xFFFF0109
     li t1, 0xFFFF0108 # t1 = 0xFFFF0108
     li t2, 1 # t2 = 1
-    li t3, 0 # t3 = 0
-    sw t2, 0(t1) 
+    li t5, 0 # t5 = 0
 
-    li a0, 0 # a0 = 0
-    
+    loop_syscall_write:
+        lb t3, 0(a1) # 
+        sb t3, 0(t0) # 
+        sb t2, 0(t1) #
+        loop_send_byte:
+            lb t4, 0(t1) #
+            bnez t4, loop_send_byte
+        addi a1, a1, 1; # a1 = a1 + 1
+        addi t5, t5, 1; # t5 = t5 + 1
+        blt t5, a2, loop_syscall_write # if t5 < a2 then loop_syscall_write        
 
-    loop_write_on_screen:
-        lw t2, 0(t1)
-        addi a0, a0, 1; # a0 = a0 + 1 
-        bne t2, t3, loop_write_on_screen # if t2 != t3 then loop_write_on_screen
-                
+    mv  a0, t5 # a0 = t5
+
     j end_syscall
 
 time_now: .skip 4

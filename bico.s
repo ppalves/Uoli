@@ -130,7 +130,7 @@ puts:
     loop_puts:
         lb t1, 0(t2)
         addi a2, a2, 1	# a2 = a2 + 1
-	addi t2, t2, 1	# t2 = t2 + 1
+        addi t2, t2, 1	# t2 = t2 + 1
         bnez t1, loop_puts
     ecall
     ret

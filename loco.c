@@ -100,18 +100,18 @@ void verify_enemies(int current_axis) {
 	if (dist < 150) {
 	    //Current_axis = 0 eh o eixo X
 	    if (current_axis == 0) {
-		if (pos.z<(dangerous_locations[i].z) && pos.z>(dangerous_locations[i].z-11)) {
+		if (pos.z<(dangerous_locations[i].z) && pos.z>(dangerous_locations[i].z-110)) {
 		    dodge_enemy(i, current_axis);
 		}
-		else if (pos.z>(dangerous_locations[i].z) && pos.z<(dangerous_locations[i].z+11)) {
+		else if (pos.z>(dangerous_locations[i].z) && pos.z<(dangerous_locations[i].z+110)) {
 		    dodge_enemy(i, current_axis);
 		}
 	    }
 	    else {
-		if (pos.x<(dangerous_locations[i].x) && pos.x>(dangerous_locations[i].x-11)) {
+		if (pos.x<(dangerous_locations[i].x) && pos.x>(dangerous_locations[i].x-110)) {
 		    dodge_enemy(i, current_axis);
 		}
-		else if (pos.x>(dangerous_locations[i].x) && pos.x<(dangerous_locations[i].x+11)) {
+		else if (pos.x>(dangerous_locations[i].x) && pos.x<(dangerous_locations[i].x+110)) {
 		    dodge_enemy(i, current_axis);
 		}
 	    }

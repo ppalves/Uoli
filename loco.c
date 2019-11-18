@@ -5,15 +5,13 @@ void sort_friends_order (int *vetor, int n, int *friends_order);
 void turn_to_head_direction(int direction, Vector3 angles);
 void turn_absolute_y(int angle, Vector3 angles);
 void dodge_enemy(int index, int current_axis);
+void wait(int waiting_time);
+void verify_enemies(int current_axis);
+int verify_obstacles();
 
 int main() {
-    Vector3 pos;
-	Vector3 angles;
-	get_current_GPS_position(&pos);
-	get_gyro_angles(&angles);
-	print_int(angles.y);
-	turn_absolute_y(120, angles);
-	turn_absolute_y(240, angles);
+    wait(2);
+    print_int(verify_obstacles());
     //loop_infinito
     while(1) {
 	//Nada
@@ -92,7 +90,7 @@ void sort_friends_order (int *vetor, int n, int *friends_order) {
     }
 }
 
-void verify_enemies_proximity(int current_axis) {
+void verify_enemies(int current_axis) {
     int num_enemies = sizeof(dangerous_locations)/sizeof(dangerous_locations[0]);
     Vector3 pos;
     for(int i=0; i<num_enemies; i++) {
@@ -125,9 +123,23 @@ void dodge_enemy(int index, int current_axis) {
 
 }
 
+void wait(int waiting_time) {
+    waiting_time = waiting_time*1000;
+    int initial_time = get_time();
+    while((get_time()-initial_time)<waiting_time) {
+	//Nothing
+    }
+}
 
-
-
+int verify_obstacles() {
+    int distance = get_us_distance();
+    if (distance == 65535) {
+	return 0; //Nenhum obstaculo a frente.
+    }
+    else {
+	return 1; //Obstaculo a frente.
+    }
+}
 
 
 

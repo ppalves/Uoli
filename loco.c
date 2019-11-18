@@ -1,9 +1,10 @@
 #include "api_robot2.h"
 
 void print_int(int a);
-void sort_friends_order(dist_aux, num_friends, friends_order);
+void sort_friends_order (int *vetor, int n, int *friends_order);
 void turn_to_head_direction(int direction, Vector3 angles);
 void turn_absolute_y(int angle, Vector3 angles);
+void dodge_enemy(int index, int current_axis);
 
 int main() {
     Vector3 pos;
@@ -12,8 +13,6 @@ int main() {
 	get_gyro_angles(&angles);
 	print_int(angles.y);
 	turn_absolute_y(120, angles);
-	set_torque(10,10);
-	set_torque(0,0);
 	turn_absolute_y(240, angles);
     //loop_infinito
     while(1) {
@@ -92,3 +91,44 @@ void sort_friends_order (int *vetor, int n, int *friends_order) {
         }
     }
 }
+
+void verify_enemies_proximity(int current_axis) {
+    int num_enemies = sizeof(dangerous_locations)/sizeof(dangerous_locations[0]);
+    Vector3 pos;
+    for(int i=0; i<num_enemies; i++) {
+	get_current_GPS_position(&pos);
+	int dist = (pos.x-dangerous_locations[i].x)*(pos.x-dangerous_locations[i].x);
+	dist = dist + (pos.z-dangerous_locations[i].z)*(pos.z-dangerous_locations[i].z);
+	if (dist < 150) {
+	    //Current_axis = 0 eh o eixo X
+	    if (current_axis == 0) {
+		if (pos.z<(dangerous_locations[i].z) && pos.z>(dangerous_locations[i].z-11)) {
+		    dodge_enemy(i, current_axis);
+		}
+		else if (pos.z>(dangerous_locations[i].z) && pos.z<(dangerous_locations[i].z+11)) {
+		    dodge_enemy(i, current_axis);
+		}
+	    }
+	    else {
+		if (pos.x<(dangerous_locations[i].x) && pos.x>(dangerous_locations[i].x-11)) {
+		    dodge_enemy(i, current_axis);
+		}
+		else if (pos.x>(dangerous_locations[i].x) && pos.x<(dangerous_locations[i].x+11)) {
+		    dodge_enemy(i, current_axis);
+		}
+	    }
+	}
+    }
+}
+
+void dodge_enemy(int index, int current_axis) {
+
+}
+
+
+
+
+
+
+
+

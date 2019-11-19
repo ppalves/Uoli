@@ -12,6 +12,23 @@ int verify_obstacles();
 int main() {
     wait(2);
     print_int(verify_obstacles());
+    Vector3 pos;
+	Vector3 angles;
+	get_current_GPS_position(&pos);
+	get_gyro_angles(&angles);
+	print_int(angles.y);
+	turn_absolute_y(120, angles);
+	get_gyro_angles(&angles);
+	print_int(angles.y);
+	// set_torque(10,10);
+	// for (int i = 0; i < 100000000000; i++)
+	// {
+	// 	/* code */
+	// }
+	// set_torque(0,0);
+	turn_absolute_y(240, angles);
+	get_gyro_angles(&angles);
+	print_int(angles.y);
     //loop_infinito
     while(1) {
 	//Nada

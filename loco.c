@@ -6,7 +6,7 @@ void turn_to_head_direction(int direction, Vector3 angles);
 void turn_absolute_y(int angle, Vector3 angles);
 void dodge_enemy(int index, int current_axis);
 void wait(int waiting_time);
-void verify_enemies(int current_axis);
+int verify_enemies(int current_axis);
 void print_int_with_new_line(int a);
 void verify_position(int *aumentarX, int *aumentarZ, Vector3 pos, int x, int z);
 void go_to_objective(int x, int z, Vector3 pos, Vector3 angles);
@@ -48,6 +48,9 @@ int main() {
 		puts("cheguei");
 		wait(1);
 	}
+
+	puts("terminei");
+	set_torque(0,0);
 	
 	
 	
@@ -83,7 +86,7 @@ void verify_position(int *aumentarX, int *aumentarZ, Vector3 pos, int x, int z){
 
 int verify_inclination(Vector3 angles){
 	get_gyro_angles(&angles);
-	if(!(angles.x > 355 || angles.x < 5) || !(angles.z > 355 || angles.z < 5)){
+	if(!(angles.x > 354 || angles.x < 6) || !(angles.z > 354 || angles.z < 6)){
 		return 0;
 	}
 	return 1;
@@ -116,13 +119,13 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			turn_absolute_y(angle, angles);
 			
 			set_torque(7,7);
-			while(!verify_obstacles() && aumentarX_inicial == aumentarX && verify_inclination(angles)){
+			while(!verify_obstacles() && aumentarX_inicial == aumentarX && verify_inclination(angles) && !verify_enemies(0)){
 				verify_position(&aumentarX, &aumentarZ, pos, x, z);
 			}
 			puts("vai bater\n");
 			
 			set_torque(0,0);
-			wait(3);
+			//wait(3);
 			
 		}
 
@@ -139,13 +142,13 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			turn_absolute_y(angle, angles);
 			
 			set_torque(7,7);
-			while (!verify_obstacles() && aumentarZ_inicial == aumentarZ && verify_inclination(angles)){
+			while (!verify_obstacles() && aumentarZ_inicial == aumentarZ && verify_inclination(angles) && !verify_enemies(1)){
 				verify_position(&aumentarX, &aumentarZ, pos, x, z);
 			}
 			puts("vai bater\n");
 			
 			set_torque(0,0);
-			wait(3);
+			//wait(3);
 			
 
 		}
@@ -237,38 +240,37 @@ void sort_friends_order (int *vetor, int n, int *friends_order) {
     }
 }
 
-void verify_enemies(int current_axis) {
+int verify_enemies(int current_axis) {
     int num_enemies = sizeof(dangerous_locations)/sizeof(dangerous_locations[0]);
     Vector3 pos;
     for(int i=0; i<num_enemies; i++) {
 		get_current_GPS_position(&pos);
 		int dist = (pos.x-dangerous_locations[i].x)*(pos.x-dangerous_locations[i].x);
 		dist = dist + (pos.z-dangerous_locations[i].z)*(pos.z-dangerous_locations[i].z);
-		if (dist < 150) {
+		if (dist < 12) {
 			//Current_axis = 0 eh o eixo X
 			if (current_axis == 0) {
-				if (pos.z<(dangerous_locations[i].z) && pos.z>(dangerous_locations[i].z-110)) {
-					dodge_enemy(i, current_axis);
+				if (pos.z<(dangerous_locations[i].z) && pos.z>(dangerous_locations[i].z-8)) {
+					return 1;
 				}
-				else if (pos.z>(dangerous_locations[i].z) && pos.z<(dangerous_locations[i].z+110)) {
-					dodge_enemy(i, current_axis);
+				else if (pos.z>(dangerous_locations[i].z) && pos.z<(dangerous_locations[i].z+8)) {
+					return 1;
 				}
 			}
 			else {
-				if (pos.x<(dangerous_locations[i].x) && pos.x>(dangerous_locations[i].x-110)) {
-					dodge_enemy(i, current_axis);
+				if (pos.x<(dangerous_locations[i].x) && pos.x>(dangerous_locations[i].x-8)) {
+					return 1;
 				}
-				else if (pos.x>(dangerous_locations[i].x) && pos.x<(dangerous_locations[i].x+110)) {
-					dodge_enemy(i, current_axis);
+				else if (pos.x>(dangerous_locations[i].x) && pos.x<(dangerous_locations[i].x+8)) {
+					return 1;
 				}
 			}
 		}
     }
+	return 0;
 }
 
-void dodge_enemy(int index, int current_axis) {
 
-}
 
 void wait(int waiting_time) {
     waiting_time = waiting_time*1000;

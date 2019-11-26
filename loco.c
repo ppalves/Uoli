@@ -15,12 +15,14 @@ void me_and_the_boys(int *friends_order);
 int verify_inclination(Vector3 angles);
 
 int main() {
+	set_head_servo(1, 78);
     Vector3 pos;
 	Vector3 angles;
 	get_gyro_angles(&angles);
 	get_current_GPS_position(&pos);
 	print_int_with_new_line(pos.x);
 	print_int_with_new_line(pos.z);
+
 	
 	// print_int_with_new_line(angles.y);
 	// turn_absolute_y(90, angles);
@@ -45,12 +47,14 @@ int main() {
 
 	for (int i = 0; i < num_friends; i++){
 		go_to_objective(friends_locations[order[i]].x, friends_locations[order[i]].z, pos, angles);
-		puts("cheguei");
-		wait(1);
+		puts("cheguei\n");
+		wait(500);
+		print_int_with_new_line(get_time());
 	}
 
 	puts("terminei");
 	set_torque(0,0);
+	
 	
 	
 	
@@ -86,7 +90,7 @@ void verify_position(int *aumentarX, int *aumentarZ, Vector3 pos, int x, int z){
 
 int verify_inclination(Vector3 angles){
 	get_gyro_angles(&angles);
-	if(!(angles.x > 354 || angles.x < 6) || !(angles.z > 354 || angles.z < 6)){
+	if(!(angles.x > 353 || angles.x < 7) || !(angles.z > 353 || angles.z < 7)){
 		return 0;
 	}
 	return 1;
@@ -100,6 +104,7 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 	verify_position(&aumentarX, &aumentarZ, pos, x, z);
 	
 	int angle;
+	int inimigo;
 	
 	while(aumentarX != 2 || aumentarZ != 2){
 		puts("aumentarX: ");
@@ -119,10 +124,20 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			turn_absolute_y(angle, angles);
 			
 			set_torque(7,7);
-			while(!verify_obstacles() && aumentarX_inicial == aumentarX && verify_inclination(angles) && !verify_enemies(0)){
+			
+			while(!verify_obstacles() && aumentarX_inicial == aumentarX && verify_inclination(angles)){
 				verify_position(&aumentarX, &aumentarZ, pos, x, z);
+				get_gyro_angles(&angles);
+				if ((angles.y-angle)<-30) {
+					if((angles.y-angle)>30) {
+						puts("lala");
+						break;
+					}
+				}
 			}
 			puts("vai bater\n");
+			
+			
 			
 			set_torque(0,0);
 			//wait(3);
@@ -142,10 +157,19 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			turn_absolute_y(angle, angles);
 			
 			set_torque(7,7);
-			while (!verify_obstacles() && aumentarZ_inicial == aumentarZ && verify_inclination(angles) && !verify_enemies(1)){
+			
+			while (!verify_obstacles() && aumentarZ_inicial == aumentarZ && verify_inclination(angles)){
 				verify_position(&aumentarX, &aumentarZ, pos, x, z);
+				get_gyro_angles(&angles);
+				if ((angles.y-angle)<-30) {
+					if((angles.y-angle)>30) {
+						puts("lala");
+						break;
+					}
+				}
 			}
 			puts("vai bater\n");
+			
 			
 			set_torque(0,0);
 			//wait(3);
@@ -217,7 +241,7 @@ void turn_absolute_y(int angle, Vector3 angles){
 	set_torque(20, -20);
 	while(1){
 		get_gyro_angles(&angles);
-		if(angles.y >= angle - 7 && angles.y <= angle + 5)
+		if(angles.y >= angle - 5 && angles.y <= angle + 5)
 			break;
 	}
 	set_torque(0,0);
@@ -247,24 +271,24 @@ int verify_enemies(int current_axis) {
 		get_current_GPS_position(&pos);
 		int dist = (pos.x-dangerous_locations[i].x)*(pos.x-dangerous_locations[i].x);
 		dist = dist + (pos.z-dangerous_locations[i].z)*(pos.z-dangerous_locations[i].z);
-		if (dist < 12) {
-			//Current_axis = 0 eh o eixo X
-			if (current_axis == 0) {
-				if (pos.z<(dangerous_locations[i].z) && pos.z>(dangerous_locations[i].z-8)) {
-					return 1;
-				}
-				else if (pos.z>(dangerous_locations[i].z) && pos.z<(dangerous_locations[i].z+8)) {
-					return 1;
-				}
-			}
-			else {
-				if (pos.x<(dangerous_locations[i].x) && pos.x>(dangerous_locations[i].x-8)) {
-					return 1;
-				}
-				else if (pos.x>(dangerous_locations[i].x) && pos.x<(dangerous_locations[i].x+8)) {
-					return 1;
-				}
-			}
+		if (dist < 100) {
+			return 1;
+			// if (current_axis == 0) {
+			// 	if (pos.z<(dangerous_locations[i].z) && pos.z>(dangerous_locations[i].z-25)) {
+			// 		return 1;
+			// 	}
+			// 	else if (pos.z>(dangerous_locations[i].z) && pos.z<(dangerous_locations[i].z+25)) {
+			// 		return 1;
+			// 	}
+			// }
+			// else {
+			// 	if (pos.x<(dangerous_locations[i].x) && pos.x>(dangerous_locations[i].x-25)) {
+			// 		return 1;
+			// 	}
+			// 	else if (pos.x>(dangerous_locations[i].x) && pos.x<(dangerous_locations[i].x+25)) {
+			// 		return 1;
+			// 	}
+			// }
 		}
     }
 	return 0;
@@ -273,7 +297,7 @@ int verify_enemies(int current_axis) {
 
 
 void wait(int waiting_time) {
-    waiting_time = waiting_time*1000;
+    
     int initial_time = get_time();
     while((get_time()-initial_time)<waiting_time) {
 		//Nothing

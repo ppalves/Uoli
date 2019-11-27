@@ -210,7 +210,7 @@ syscall_read_ultrasonic_sensor:
 
 syscall_set_servo_angles:
     if_servo_1:
-	    li t1, 0
+	    li t1, 1
 	    bne a0, t1, else_servo_2	#if a0!=1 then else_servo_2
 	    li t1, 16
 	    blt a1, t1, invalid_angle	#if a1<16 then invalid_angle
@@ -221,7 +221,7 @@ syscall_set_servo_angles:
 	    li a0, 0
 	    j else_servo
     else_servo_2:
-	    li t1, 1
+	    li t1, 2
 	    bne a0, t1, else_servo_3
 	    li t1, 52
 	    blt a1, t1, invalid_angle	#if a1<52 then invalid_angle
@@ -232,7 +232,7 @@ syscall_set_servo_angles:
 	    li a0, 0
 	    j else_servo
     else_servo_3:
-	    li t1, 2
+	    li t1, 3
 	    bne a0, t1, invalid_id
 	    blt a1, zero, invalid_angle	#if a1<0 then invalid_angle
 	    li t1, 156

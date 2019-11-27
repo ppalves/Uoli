@@ -86,6 +86,7 @@ set_engine_torque:
 #	-2 caso o angulo seja invalido
 #	 0 caso esteja tudo certo
 set_head_servo:
+    addi a0, a0, 1	#a0=a0+1
     li a7, 17	#Codigo da SysCall
     ecall	#Chama a SysCall
     if_return_invalid_id:

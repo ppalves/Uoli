@@ -7,6 +7,7 @@
 .globl get_time
 .globl set_time
 .globl puts
+
 # Seta o torque dos dois motores. O torque tem que ser um valor
 #entre -100 e 100.
 # Parametros:
@@ -101,7 +102,12 @@ set_head_servo:
 
 
 
-
+#Le a distancia indicada pelo sensor ultrasonico
+#Parametros:
+#   - 
+#Retorno:
+#   Valor obitido pela leitura do sensor 
+#   -1 caso nao tenha nenhum objeto no range de ate 600cm
 get_us_distance:
     li a7, 16 # a7 = 16
     ecall
@@ -111,16 +117,32 @@ get_us_distance:
     valid_distance:
     ret
 
+#Le a posicao atual indicada pelo GPS do Uoli
+#Parametros:
+#   pos: ponteiro para a struct a ser preenchida com as coordenadas do GPS
+#Retorno:
+#   void
 get_current_GPS_position:
     li a7, 19 # a7 = 19
     ecall
     ret
 
+#Le a rotacao global indicada pelo giroscopio
+#Parametros:
+#   angles: ponteiro pra struct a ser preenchida com os angulos de Euler
+#Retorno:
+#   void
 get_gyro_angles:
     li a7, 20 # a7 = 20
     ecall
     ret
 
+#Escreve uma string no UART. Usa a syscall write com file descripitor 1
+#para instruir a SOUL a escrever a string na UART
+#Parametros:
+#   *s: ponteiro para a string
+#Retorno:
+#   void
 puts:
     li a7, 64 # a7 = 64
     mv  a1, a0 # a1 = a0

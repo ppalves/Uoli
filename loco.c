@@ -1,5 +1,6 @@
 #include "api_robot2.h"
 
+//cabecalho das funcoes
 void print_int(int a);
 void sort_friends_order (int *vetor, int n, int *friends_order);
 void turn_to_head_direction(int direction, Vector3 angles);
@@ -8,11 +9,12 @@ void dodge_enemy(int index, int current_axis);
 void wait(int waiting_time);
 int verify_enemies(int current_axis);
 void print_int_with_new_line(int a);
-void verify_position(int *aumentarX, int *aumentarZ, Vector3 pos, int x, int z);
+void verify_position(int *increaseX, int *increaseZ, Vector3 pos, int x, int z);
 void go_to_objective(int x, int z, Vector3 pos, Vector3 angles);
 int verify_obstacles();
 void me_and_the_boys(int *friends_order);
 int verify_inclination(Vector3 angles);
+
 
 int main() {
 	set_head_servo(1, 78);
@@ -22,24 +24,6 @@ int main() {
 	get_current_GPS_position(&pos);
 	print_int_with_new_line(pos.x);
 	print_int_with_new_line(pos.z);
-
-	
-	// print_int_with_new_line(angles.y);
-	// turn_absolute_y(90, angles);
-	// get_gyro_angles(&angles);
-	// print_int_with_new_line(angles.y);
-	// set_torque(10,10);
-	// get_current_GPS_position(&pos);
-	// print_int_with_new_line(pos.x);
-	// print_int_with_new_line(pos.z);
-	// wait(2);
-	// get_current_GPS_position(&pos);
-	// print_int_with_new_line(pos.x);
-	// print_int_with_new_line(pos.z);
-	// wait(2);
-	// get_current_GPS_position(&pos);
-	// print_int_with_new_line(pos.x);
-	// print_int_with_new_line(pos.z);
 
 	int num_friends = sizeof(friends_locations)/sizeof(friends_locations[0]);
 	int order[num_friends];
@@ -64,30 +48,56 @@ int main() {
     return 0;
 }
 
-void verify_position(int *aumentarX, int *aumentarZ, Vector3 pos, int x, int z){
+
+/*
+ *Função responsavel por determinar se o Uoli precisa aumentar seu X ou Z para chegar na posicao do amigo
+ *ie. andar no sentido positivo do eixo X ou no sentido negativo
+ *
+ *Parametros:
+ *		int *increaseX: ponteiro para um inteiro que indica se devemos aumentar, diminuir ou manter X
+ *		int *increaseZ: ponteiro para um inteiro que indica se devemos aumentar, diminuir ou manter Z
+ * 		Vector3 pos: Vector para armazenar a posicao atual do Uoli
+ * 		int x: posicao x do amigo
+ * 		int z: posicao z do amigo
+ * 
+ *Retorno:
+ *		void
+ */
+void verify_position(int *increaseX, int *increaseZ, Vector3 pos, int x, int z){
 	get_current_GPS_position(&pos);
 	
 
 	if (pos.x >= x - 4 && pos.x <= x + 4)
-		*aumentarX = 2;
+		*increaseX = 2;
 
 	else if (pos.x < x)
-		*aumentarX = 1;
+		*increaseX = 1;
 
 	else if (pos.x > x)
-		*aumentarX = 0;
+		*increaseX = 0;
 
 
 	if (pos.z >= z - 4 && pos.z <= z + 4)
-		*aumentarZ = 2;
+		*increaseZ = 2;
 
 	else if (pos.z < z)
-		*aumentarZ = 1;
+		*increaseZ = 1;
 
 	else if (pos.z > z)
-		*aumentarZ = 0;
+		*increaseZ = 0;
 }
 
+
+/*
+ *Funcao para verificar a inclinacao do robo com base nos angulos de Euler
+ *
+ *Parametros:
+ *		Vector3 angles: Vector para armazenar os angulos atuais do Uoli 
+ *
+ *Retorno:
+ *		int: 1 se a inclinacao é aceitavel
+ * 			 0 se a inclinacao é muito grande
+ */
 int verify_inclination(Vector3 angles){
 	get_gyro_angles(&angles);
 	if(!(angles.x > 353 || angles.x < 7) || !(angles.z > 353 || angles.z < 7)){
@@ -96,37 +106,52 @@ int verify_inclination(Vector3 angles){
 	return 1;
 }
 
+/*
+ * Função responsavel por guiar o Uoli ate os amigos e desviar de obstaculos como barris e montanhas
+ * O algoritimo se baseia em verificarmos se as coordenadas X e Z do robo são maiores ou menores que as 
+ * coordenadas do amigo. Apos isso andamos sobre um dos eixos (X ou Z) em direcao ao amigo. Se encontramos 
+ * um obstaculo no meio do caminho mudamos o eixo sobre o qual estamos andando e assim em diante. 
+ * 
+ * Parametros:
+ * 		int x: posicao x do amigo
+ * 		int z: posicao z do amigo
+ * 		Vector3 pos: Vector para armazenar a posicao atual do Uoli
+ * 		Vector3 angles: Vector para armazenar os angulos atuais do Uoli 
+ * 
+ * Retorno:
+ * 		void  
+ */
 void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 
-	int aumentarX;
-	int aumentarZ;
+	int increaseX;
+	int increaseZ;
 	
-	verify_position(&aumentarX, &aumentarZ, pos, x, z);
+	verify_position(&increaseX, &increaseZ, pos, x, z);
 	
 	int angle;
 	int inimigo;
 	
-	while(aumentarX != 2 || aumentarZ != 2){
-		puts("aumentarX: ");
-		print_int_with_new_line(aumentarX);
-		puts("aumentarZ: ");
-		print_int_with_new_line(aumentarZ);
+	while(increaseX != 2 || increaseZ != 2){
+		puts("increaseX: ");
+		print_int_with_new_line(increaseX);
+		puts("increaseZ: ");
+		print_int_with_new_line(increaseZ);
 
-		if (aumentarX != 2){
+		if (increaseX != 2){
 			puts("andando no X\n");
-			int aumentarX_inicial =  aumentarX;
+			int increaseX_inicial =  increaseX;
 		
-			if (aumentarX)
+			if (increaseX)
 				angle = 90;
-			else if (!aumentarX)
+			else if (!increaseX)
 				angle = 270; 
 
 			turn_absolute_y(angle, angles);
 			
 			set_torque(7,7);
 			
-			while(!verify_obstacles() && aumentarX_inicial == aumentarX && verify_inclination(angles)){
-				verify_position(&aumentarX, &aumentarZ, pos, x, z);
+			while(!verify_obstacles() && increaseX_inicial == increaseX && verify_inclination(angles)){
+				verify_position(&increaseX, &increaseZ, pos, x, z);
 				get_gyro_angles(&angles);
 				if ((angles.y-angle)<-30) {
 					if((angles.y-angle)>30) {
@@ -144,13 +169,13 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			
 		}
 
-		if(aumentarZ != 2){
+		if(increaseZ != 2){
 			puts("andando no Z\n");
-			int aumentarZ_inicial = aumentarZ;
+			int increaseZ_inicial = increaseZ;
 
-			if (aumentarZ)
+			if (increaseZ)
 				angle = 0;
-			else if (!aumentarZ)
+			else if (!increaseZ)
 				angle = 180;
 			
 			
@@ -158,8 +183,8 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			
 			set_torque(7,7);
 			
-			while (!verify_obstacles() && aumentarZ_inicial == aumentarZ && verify_inclination(angles)){
-				verify_position(&aumentarX, &aumentarZ, pos, x, z);
+			while (!verify_obstacles() && increaseZ_inicial == increaseZ && verify_inclination(angles)){
+				verify_position(&increaseX, &increaseZ, pos, x, z);
 				get_gyro_angles(&angles);
 				if ((angles.y-angle)<-30) {
 					if((angles.y-angle)>30) {
@@ -177,7 +202,7 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 
 		}
 
-		verify_position(&aumentarX, &aumentarZ, pos, x, z);
+		verify_position(&increaseX, &increaseZ, pos, x, z);
 
 	}
 	

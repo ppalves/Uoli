@@ -197,15 +197,15 @@ int_handler:
 
 #Implementacao das SysCalls:
 syscall_read_ultrasonic_sensor:
-    li t1, 0xFFFF0020
+    li t1, 0xFFFF0020    
     li t2, 0
-    sw t2, 0(t1) 
+    sw t2, 0(t1)     #carrega o bit 0 no endereço especificado para iniciar a leitura
     while_read_ultrasonic:
         lw t2, 0(t1) 
         li t3, 1 
         bne t2, t3, while_read_ultrasonic # if t2 != t3 then while_read_ultrasonic
     li t1, 0xFFFF0024 # t1 = 0xFFFF0024
-    lw a0, 0(t1) 
+    lw a0, 0(t1)  #Le o valor do sensor a partir do endereço especificado
     j end_syscall
 
 syscall_set_servo_angles:
@@ -268,42 +268,42 @@ syscall_set_engine_torque:
     j end_syscall
 
 syscall_read_gps:
-    li t1, 0xFFFF0004
+    li t1, 0xFFFF0004 
     li t2, 0
-    sw t2, 0(t1) 
+    sw t2, 0(t1)  #carrega o bit 0 no endereço especificado para começar a leitura
     while_read_gps:
         lw t2, 0(t1) 
         li t3, 1 
         bne t2, t3, while_read_gps # if t2 != t3 then while_read_gps
     li t1, 0xFFFF0008 # t1 = 0xFFFF0008
-    lw t2, 0(t1) # 
-    sw t2, 0(a0) # 
+    lw t2, 0(t1)  
+    sw t2, 0(a0)  #Le o valor do GPS em x 
     li t1, 0xFFFF000C # t1 = 0xFFFF0008
-    lw t2, 0(t1) # 
-    sw t2, 4(a0) # 
+    lw t2, 0(t1) 
+    sw t2, 4(a0) #Le o valor do GPS em y
     li t1, 0xFFFF0010 # t1 = 0xFFFF0008
-    lw t2, 0(t1) # 
-    sw t2, 8(a0) # 
+    lw t2, 0(t1) 
+    sw t2, 8(a0) #Le o valor do GPS em z
     j end_syscall
 
 syscall_read_gyroscope:
     li t1, 0xFFFF0004
     li t2, 0
-    sw t2, 0(t1) 
+    sw t2, 0(t1)  #Carrega o bit 0 para iniciar a leitura 
     while_read_gyroscope:
         lw t2, 0(t1) 
         li t3, 1 
         bne t2, t3, while_read_gyroscope # if t2 != t3 then while_read_gps
     li t1, 0xFFFF0014 # t1 = 0xFFFF0014
-    lw t1, 0(t1) # 
+    lw t1, 0(t1) 
     srli t2, t1, 20
     slli t3, t1, 12
     srli t3, t3, 22
     slli t4, t1, 22
     srli t4, t4, 22
-    sw t2, 0(a0) # 
-    sw t3, 4(a0) # 
-    sw t4, 8(a0) #     
+    sw t2, 0(a0) #Armazena o valor do angulo X
+    sw t3, 4(a0) #Armazena o valor do angulo Y
+    sw t4, 8(a0) #Armazena o valor do angulo Z   
     j end_syscall
 
 syscall_get_time:
@@ -326,11 +326,11 @@ syscall_write:
         lb t3, 0(a1) # 
         sb t3, 0(t0) # 
         sb t2, 0(t1) #
-        loop_send_byte:
+        loop_send_byte: #loop para enviar o bit pra UART
             lb t4, 0(t1) #
             bnez t4, loop_send_byte
-        addi a1, a1, 1; # a1 = a1 + 1
-        addi t5, t5, 1; # t5 = t5 + 1
+        addi a1, a1, 1; # a1 = a1 + 1     Pega o proximo bit do texto
+        addi t5, t5, 1; # t5 = t5 + 1     Contador de quantos bits foram escritos
         blt t5, a2, loop_syscall_write # if t5 < a2 then loop_syscall_write        
 
     mv  a0, t5 # a0 = t5

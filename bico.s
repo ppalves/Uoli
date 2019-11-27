@@ -65,11 +65,6 @@ set_engine_torque:
 	beq a0, t2, invalid_eng_id	#If a0=-1 then invalid_eng_id
 	j end_set_eng_torq
     invalid_torque:
-	li t2, 0
-	li t3, 1
-	beq a0, t2, id_ok		#If a0=0 then id_ok
-	bne a0, t3, invalid_eng_id	#If a0!=1 then invalid_eng_id
-	id_ok:
 	    li a0, -1	#Valor de retorno para torque invalido
 	    j end_set_eng_torq
     invalid_eng_id:

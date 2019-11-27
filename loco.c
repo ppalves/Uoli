@@ -153,8 +153,8 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			while(!verify_obstacles() && increaseX_inicial == increaseX && verify_inclination(angles)){
 				verify_position(&increaseX, &increaseZ, pos, x, z);
 				get_gyro_angles(&angles);
-				if ((angles.y-angle)<-30) {
-					if((angles.y-angle)>30) {
+				if ((angles.y-angle)<-10) {
+					if((angles.y-angle)>10) {
 						puts("lala");
 						break;
 					}
@@ -186,8 +186,8 @@ void go_to_objective(int x, int z, Vector3 pos, Vector3 angles){
 			while (!verify_obstacles() && increaseZ_inicial == increaseZ && verify_inclination(angles)){
 				verify_position(&increaseX, &increaseZ, pos, x, z);
 				get_gyro_angles(&angles);
-				if ((angles.y-angle)<-30) {
-					if((angles.y-angle)>30) {
+				if ((angles.y-angle)<-10) {
+					if((angles.y-angle)>10) {
 						puts("lala");
 						break;
 					}
